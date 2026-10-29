@@ -1,0 +1,67 @@
+
+.hover-me-button {
+  position: absolute;
+  z-index: 99;
+
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+
+  width: 200px;
+  height: 50px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+
+  color: #25243a;
+
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 50px;
+
+  box-shadow:
+    0 8px 30px rgba(90, 80, 160, 0.12),
+    inset 0 1px 1px rgba(255, 255, 255, 0.8);
+
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+
+  cursor: pointer;
+  pointer-events: auto;
+
+  transition:
+    background 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s ease,
+    border-color 0.3s ease;
+
+
+   border: 2px solid black; 
+}
+
+.hover-me-button:hover {
+  transform: translateX(-50%) translateY(-3px);
+
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(175, 155, 255, 0.7);
+
+  box-shadow:
+    0 12px 35px rgba(130, 105, 220, 0.2),
+    0 0 20px rgba(190, 170, 255, 0.18);
+}
+
+.hover-me-button:active {
+  transform: translateX(-50%) scale(0.97);
+}
+
+.hover-me-button:focus-visible {
+  outline: 2px solid #a892ee;
+  outline-offset: 4px;
+}
