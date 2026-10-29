@@ -20,8 +20,9 @@ const Model = ({
   animationSpeed = 1,
 }) => {
   const isHovered = useRef(false);
+  const modelPath = `${import.meta.env.BASE_URL}Model.glb`;
 
-  const { scene, animations } = useGLTF("/Model.glb");
+  const { scene, animations } = useGLTF(modelPath);
 
   // ==========================================
   // MODEL TRANSFORMS
@@ -135,6 +136,8 @@ const Model = ({
   );
 };
 
-useGLTF.preload("/Model.glb");
+useGLTF.preload(
+  `${import.meta.env.BASE_URL}Model.glb`
+);
 
 export default Model;
