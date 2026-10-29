@@ -3,7 +3,7 @@ import './HoverMeButton.css'
 const HoverMeButton = ()=>{
     return(
             <button className="hover-me-button">
-                Hover Me
+                Hover/Click Me
             </button>
     )
 }

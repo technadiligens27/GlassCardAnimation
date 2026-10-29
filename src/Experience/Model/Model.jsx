@@ -1,5 +1,5 @@
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   useGLTF,
@@ -20,6 +20,41 @@ const Model = ({
   animationSpeed = 1,
 }) => {
   const isHovered = useRef(false);
+
+  // ==========================================
+  // MOBILE DETECTION
+  // ==========================================
+
+  const [isMobile, setIsMobile] = useState(() =>
+    window.matchMedia("(max-width: 768px)").matches
+  );
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(
+      "(max-width: 768px)"
+    );
+
+    const handleChange = (e) => {
+      setIsMobile(e.matches);
+      isHovered.current = false;
+      document.body.style.cursor = "auto";
+    };
+
+    mediaQuery.addEventListener("change", handleChange);
+
+    return () => {
+      mediaQuery.removeEventListener(
+        "change",
+        handleChange
+      );
+      document.body.style.cursor = "auto";
+    };
+  }, []);
+
+  // ==========================================
+  // LOAD MODEL
+  // ==========================================
+
   const modelPath = `${import.meta.env.BASE_URL}Model.glb`;
 
   const { scene, animations } = useGLTF(modelPath);
@@ -32,7 +67,7 @@ const Model = ({
 
   const rotation = [0.12, 1.37, -0.07];
 
-  const scale = 1.07;
+  const scale = isMobile ? 0.8 : 1.07;
 
   // ==========================================
   // ANIMATION SETUP
@@ -67,49 +102,86 @@ const Model = ({
   }, [actions, names]);
 
   // ==========================================
-  // PLAY FORWARD ON HOVER
+  // PLAY ANIMATION FORWARD
   // ==========================================
 
-  const handlePointerOver = (e) => {
-    e.stopPropagation();
-
-    if (isHovered.current) return;
-
+  const playForward = () => {
     const action = getAction();
 
     if (!action) return;
 
-    isHovered.current = true;
-
-    document.body.style.cursor = "pointer";
-
+    action.enabled = true;
     action.paused = false;
     action.timeScale = Math.abs(animationSpeed);
+
+    // Restart if animation has already finished
+    if (action.time >= action.getClip().duration) {
+      action.time = 0;
+    }
 
     action.play();
   };
 
   // ==========================================
-  // PLAY BACKWARD ON UNHOVER
+  // PLAY ANIMATION BACKWARD
   // ==========================================
+
+  const playBackward = () => {
+    const action = getAction();
+
+    if (!action) return;
+
+    action.enabled = true;
+    action.paused = false;
+    action.timeScale = -Math.abs(animationSpeed);
+
+    action.play();
+  };
+
+  // ==========================================
+  // DESKTOP HOVER
+  // ==========================================
+
+  const handlePointerOver = (e) => {
+    e.stopPropagation();
+
+    if (isMobile || isHovered.current) return;
+
+    isHovered.current = true;
+
+    document.body.style.cursor = "pointer";
+
+    playForward();
+  };
 
   const handlePointerOut = (e) => {
     e.stopPropagation();
 
-    if (!isHovered.current) return;
-
-    const action = getAction();
-
-    if (!action) return;
+    if (isMobile || !isHovered.current) return;
 
     isHovered.current = false;
 
     document.body.style.cursor = "auto";
 
-    action.paused = false;
-    action.timeScale = -Math.abs(animationSpeed);
+    playBackward();
+  };
 
-    action.play();
+  // ==========================================
+  // MOBILE CLICK / TAP
+  // ==========================================
+
+  const handleClick = (e) => {
+    e.stopPropagation();
+
+    if (!isMobile) return;
+
+    isHovered.current = !isHovered.current;
+
+    if (isHovered.current) {
+      playForward();
+    } else {
+      playBackward();
+    }
   };
 
   // ==========================================
@@ -129,12 +201,17 @@ const Model = ({
         scale={scale}
         onPointerOver={handlePointerOver}
         onPointerOut={handlePointerOut}
+        onClick={handleClick}
       >
         <primitive object={scene} />
       </group>
     </Float>
   );
 };
+
+// ==========================================
+// PRELOAD MODEL
+// ==========================================
 
 useGLTF.preload(
   `${import.meta.env.BASE_URL}Model.glb`
